@@ -3,6 +3,8 @@ import path from 'path';
 import http from 'http';
 import WebSocket from 'ws';
 import { handlers } from '../handlers/handlers';
+import { v4 as uuid } from 'uuid';
+import { clients } from '../data/data';
 
 export const httpServer = http.createServer(function (req, res) {
   const __dirname = path.resolve(path.dirname(''));
@@ -23,6 +25,8 @@ export const httpServer = http.createServer(function (req, res) {
 const server = new WebSocket.Server({ port: 3000 });
 
 server.on('connection', ws => {
+  const id = uuid();
+  clients[id] = ws;
   console.log('New client connected');
   ws.on('message', async (message: string) => {
     try {
@@ -34,6 +38,7 @@ server.on('connection', ws => {
   });
 
   ws.on('close', () => {
+    delete clients[id];
     console.log('Clien disconnected');
   });
 });
